@@ -81,12 +81,21 @@ def get_gt_boxes_from_txt(gt_path, cache_dir):
 
 def read_pred_file(filepath):
 
+    # print('read_pred_file: {}'.format(filepath))
     with open(filepath, 'r') as f:
         lines = f.readlines()
-        img_file = lines[0].rstrip('\n\r')
+        img_file = lines[0].rstrip('\r\n')
         lines = lines[2:]
 
-    boxes = np.array(list(map(lambda x: [float(a) for a in x.rstrip('\r\n').split(' ')], lines))).astype('float')
+    # boxes = np.array(list(map(lambda x: [float(a) for a in x.rstrip('\r\n').split(' ')], lines))).astype('float')
+    boxes = []
+    for line in lines:
+        box = []
+        for a in line.rstrip('\r\n').split(' '):
+            box.append(float(a))
+        boxes.append(box)
+    boxes = np.array(boxes)
+
     return img_file.split('/')[-1], boxes
 
 
@@ -273,8 +282,8 @@ def evaluation(pred, gt_path, iou_thresh=0.5):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--pred')
-    parser.add_argument('-g', '--gt', default='/Users/Vic/Downloads/eval_tools/ground_truth/')
+    parser.add_argument('-p', '--pred', default='./ocv_output/WIDER_val/images/')
+    parser.add_argument('-g', '--gt', default='./ground_truth/')
 
     args = parser.parse_args()
     evaluation(args.pred, args.gt)
